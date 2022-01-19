@@ -41,6 +41,7 @@ module Lecture2
     ) where
 
 import Data.Char (isSpace)
+import Data.List (partition)
 {- | Implement a function that finds a product of all the numbers in
 the list. But implement a lazier version of this function: if you see
 zero, you can stop calculating product and return 0 immediately.
@@ -75,10 +76,14 @@ return the removed element.
 (Nothing,[1,2,3,4,5])
 -}
 removeAt :: Int -> [a] -> (Maybe a, [a])
-removeAt = error "TODO"
--- removeAt 0 (_:xs) = xs
--- removeAt _ [] = 
--- removeAt idx (x:xs) = x: removeAt (idx - 1) xs
+removeAt 0 (x:xs) = (Just x, xs)
+removeAt _ [] = (Nothing, [])
+removeAt idx (x:xs)
+  | idx < 0 = (Nothing, x:xs)
+  | otherwise = makeList x (removeAt (idx - 1) xs)
+
+makeList:: a -> (Maybe a, [a]) -> (Maybe a, [a])
+makeList x (res, xs) = (res, x:xs)
 
 {- | Write a function that takes a list of lists and returns only
 lists of even lengths.
@@ -224,8 +229,8 @@ The algorithm of merge sort is the following:
 mergeSort :: [Int] -> [Int]
 mergeSort [] = []
 mergeSort [x] = [x]
-mergeSort xss@(x:xs)= mergeSort left ++ mergeSort right
-                where (left, right) = break (>x) xss
+mergeSort (x:xs)= mergeSort left ++ [x] ++ mergeSort right
+                where (left, right) = partition (<x) xs
 
 
 
@@ -279,8 +284,16 @@ data EvalError
 It returns either a successful evaluation result or an error.
 -}
 eval :: Variables -> Expr -> Either EvalError Int
-eval = error "TODO"
+eval _ (Lit x) = Right x
+eval vars (Var name) = variableValue vars name
+eval vars (Add op1 op2) = (+) <$> eval vars op1 <*> eval vars op2
 
+
+variableValue :: Variables -> String -> Either EvalError Int
+variableValue [] name = Left $ VariableNotFound name
+variableValue ((varName,varValue):vars) name 
+                                | name == varName = Right varValue
+                                | otherwise = variableValue vars name
 {- | Compilers also perform optimizations! One of the most common
 optimizations is "Constant Folding". It performs arithmetic operations
 on all constants known during compile time. This way you can write
