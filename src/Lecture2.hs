@@ -40,13 +40,11 @@ module Lecture2
     , constantFolding
     ) where
 
-
 -- VVV If you need to import libraries, do it after this line ... VVV
 import Data.Char (isSpace)
 import Data.List (partition)
 import Data.Maybe (fromJust, isNothing)
 -- ^^^ and before this line. Otherwise the test suite might fail  ^^^
-
 
 {- | Implement a function that finds a product of all the numbers in
 the list. But implement a lazier version of this function: if you see
@@ -82,6 +80,7 @@ return the removed element.
 (Nothing,[1,2,3,4,5])
 -}
 removeAt :: Int -> [a] -> (Maybe a, [a])
+<<<<<<< HEAD
 removeAt 0 (x:xs) = (Just x, xs)
 removeAt _ [] = (Nothing, [])
 removeAt idx (x:xs)
@@ -90,6 +89,12 @@ removeAt idx (x:xs)
 
 makeList:: a -> (Maybe a, [a]) -> (Maybe a, [a])
 makeList x (res, xs) = (res, x:xs)
+=======
+removeAt = error "TODO"
+-- removeAt 0 (_:xs) = xs
+-- removeAt _ [] = 
+-- removeAt idx (x:xs) = x: removeAt (idx - 1) xs
+>>>>>>> Lecture 2 assignments
 
 {- | Write a function that takes a list of lists and returns only
 lists of even lengths.
@@ -184,9 +189,13 @@ dragonFight = error "TODO"
 -- Extra Challenges
 ----------------------------------------------------------------------------
 
+<<<<<<< HEAD
 {- The following exercises are considered optional. Some of them might be more
 challenging. However, you still may find some of them easier than some of the
 previous ones. Difficulty is a relative concept.
+=======
+{- The following exercises are considered more challenging. However,## 17.01.2021
+>>>>>>> Lecture 2 assignments
 -}
 
 {- | Write a function that takes a list of numbers and returns 'True'
@@ -237,8 +246,13 @@ The algorithm of merge sort is the following:
 mergeSort :: [Int] -> [Int]
 mergeSort [] = []
 mergeSort [x] = [x]
+<<<<<<< HEAD
 mergeSort (x:xs)= mergeSort left ++ [x] ++ mergeSort right
                 where (left, right) = partition (<x) xs
+=======
+mergeSort xss@(x:xs)= mergeSort left ++ mergeSort right
+                where (left, right) = break (>x) xss
+>>>>>>> Lecture 2 assignments
 
 
 
