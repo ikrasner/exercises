@@ -46,6 +46,8 @@ import Data.List (partition)
 import Data.Maybe (fromJust, isNothing)
 -- ^^^ and before this line. Otherwise the test suite might fail  ^^^
 
+
+
 {- | Implement a function that finds a product of all the numbers in
 the list. But implement a lazier version of this function: if you see
 zero, you can stop calculating product and return 0 immediately.
@@ -81,6 +83,9 @@ return the removed element.
 -}
 removeAt :: Int -> [a] -> (Maybe a, [a])
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Assignment 2
 removeAt 0 (x:xs) = (Just x, xs)
 removeAt _ [] = (Nothing, [])
 removeAt idx (x:xs)
@@ -89,12 +94,15 @@ removeAt idx (x:xs)
 
 makeList:: a -> (Maybe a, [a]) -> (Maybe a, [a])
 makeList x (res, xs) = (res, x:xs)
+<<<<<<< HEAD
 =======
 removeAt = error "TODO"
 -- removeAt 0 (_:xs) = xs
 -- removeAt _ [] = 
 -- removeAt idx (x:xs) = x: removeAt (idx - 1) xs
 >>>>>>> Lecture 2 assignments
+=======
+>>>>>>> Assignment 2
 
 {- | Write a function that takes a list of lists and returns only
 lists of even lengths.
@@ -247,12 +255,17 @@ mergeSort :: [Int] -> [Int]
 mergeSort [] = []
 mergeSort [x] = [x]
 <<<<<<< HEAD
+<<<<<<< HEAD
 mergeSort (x:xs)= mergeSort left ++ [x] ++ mergeSort right
                 where (left, right) = partition (<x) xs
 =======
 mergeSort xss@(x:xs)= mergeSort left ++ mergeSort right
                 where (left, right) = break (>x) xss
 >>>>>>> Lecture 2 assignments
+=======
+mergeSort (x:xs)= mergeSort left ++ [x] ++ mergeSort right
+                where (left, right) = partition (<x) xs
+>>>>>>> Assignment 2
 
 
 
