@@ -40,8 +40,9 @@ module Lecture2
     , constantFolding
     ) where
 
--- VVV If you need to import libraries, do it after this line ... VVV
 
+-- VVV If you need to import libraries, do it after this line ... VVV
+import Data.Char (isSpace)
 -- ^^^ and before this line. Otherwise the test suite might fail  ^^^
 
 {- | Implement a function that finds a product of all the numbers in
@@ -52,7 +53,9 @@ zero, you can stop calculating product and return 0 immediately.
 84
 -}
 lazyProduct :: [Int] -> Int
-lazyProduct = error "TODO"
+lazyProduct [] = 1
+lazyProduct (0:_) = 0
+lazyProduct (x:xs) = x * lazyProduct xs
 
 {- | Implement a function that duplicates every element in the list.
 
@@ -62,7 +65,8 @@ lazyProduct = error "TODO"
 "ccaabb"
 -}
 duplicate :: [a] -> [a]
-duplicate = error "TODO"
+duplicate [] = []
+duplicate (x:xs) = x : x : duplicate xs
 
 {- | Implement function that takes index and a list and removes the
 element at the given position. Additionally, this function should also
@@ -74,7 +78,11 @@ return the removed element.
 >>> removeAt 10 [1 .. 5]
 (Nothing,[1,2,3,4,5])
 -}
+removeAt :: Int -> [a] -> (Maybe a, [a])
 removeAt = error "TODO"
+-- removeAt 0 (_:xs) = xs
+-- removeAt _ [] = 
+-- removeAt idx (x:xs) = x: removeAt (idx - 1) xs
 
 {- | Write a function that takes a list of lists and returns only
 lists of even lengths.
@@ -85,7 +93,8 @@ lists of even lengths.
 ♫ NOTE: Use eta-reduction and function composition (the dot (.) operator)
   in this function.
 -}
-evenLists = error "TODO"
+evenLists :: [[a]] -> [[a]]
+evenLists = filter $ even.length
 
 {- | The @dropSpaces@ function takes a string containing a single word
 or number surrounded by spaces and removes all leading and trailing
@@ -101,7 +110,8 @@ spaces.
 
 🕯 HINT: look into Data.Char and Prelude modules for functions you may use.
 -}
-dropSpaces = error "TODO"
+dropSpaces :: String -> String
+dropSpaces = (takeWhile $ not.isSpace).(dropWhile isSpace)
 
 {- |
 
@@ -128,10 +138,7 @@ Below is the description of the fight and character specifications:
   * Stomachs of green dragons contain extreme acid and they melt any
     treasure except gold. So green dragons has only gold as reward.
     All other dragons always contain treasure in addition to gold.
-  * Knight tries to slay dragon with their sword. Each sword strike
-    decreases dragon health by the "sword attack" amount. When the
-    dragon health becomes zero or less, a dragon dies and the knight
-    takes the reward.
+  * Knight tries to slay dragoinsight
   * After each 10 sword strikes, dragon breathes fire and decreases
     knight health by the amount of "dragon fire power". If the
     knight's health becomes 0 or less, the knight dies.
@@ -185,7 +192,9 @@ False
 True
 -}
 isIncreasing :: [Int] -> Bool
-isIncreasing = error "TODO"
+isIncreasing [] = True
+isIncreasing [x] = True
+isIncreasing (x1:x2:xs) = x1<x2 && isIncreasing (x2:xs)
 
 {- | Implement a function that takes two lists, sorted in the
 increasing order, and merges them into new list, also sorted in the
@@ -198,7 +207,11 @@ verify that.
 [1,2,3,4,7]
 -}
 merge :: [Int] -> [Int] -> [Int]
-merge = error "TODO"
+merge xs [] = xs 
+merge [] ys = ys 
+merge (x:xs) (y:ys) 
+  | x > y = y : merge (x:xs) ys 
+  | otherwise = x : merge xs (y:ys)
 
 {- | Implement the "Merge Sort" algorithm in Haskell. The @mergeSort@
 function takes a list of numbers and returns a new list containing the
@@ -215,7 +228,11 @@ The algorithm of merge sort is the following:
 [1,2,3]
 -}
 mergeSort :: [Int] -> [Int]
-mergeSort = error "TODO"
+mergeSort [] = []
+mergeSort [x] = [x]
+mergeSort xss@(x:xs)= mergeSort left ++ mergeSort right
+                where (left, right) = break (>x) xss
+
 
 
 {- | Haskell is famous for being a superb language for implementing
@@ -254,7 +271,7 @@ type Variables = [(String, Int)]
 
 {- | Unfortunately, it's not guaranteed that variables in our @Expr@
 data type are present in the given list. So we're going to introduce a
-separate data for possible evaluation errors.
+separate data for possible evaluation errors.error "TODO"
 
 Normally, this would be a sum type with several constructors
 describing all possible errors. But we have only one error in our
@@ -283,9 +300,7 @@ x + 10 + y + 15 + 20
 The result of constant folding can be:
 
 x + y + 45
-
-It also can be:
-
+([], Nothing)
 x + 45 + y
 
 Write a function that takes and expression and performs "Constant
