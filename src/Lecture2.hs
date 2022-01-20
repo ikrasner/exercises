@@ -44,7 +44,10 @@ module Lecture2
 -- VVV If you need to import libraries, do it after this line ... VVV
 import Data.Char (isSpace)
 import Data.List (partition)
+import Data.Maybe (fromJust, isNothing)
 -- ^^^ and before this line. Otherwise the test suite might fail  ^^^
+
+
 {- | Implement a function that finds a product of all the numbers in
 the list. But implement a lazier version of this function: if you see
 zero, you can stop calculating product and return 0 immediately.
@@ -319,4 +322,22 @@ Write a function that takes and expression and performs "Constant
 Folding" optimization on the given expression.
 -}
 constantFolding :: Expr -> Expr
-constantFolding = error "TODO"
+constantFolding (Lit lit) = Lit lit
+constantFolding expr 
+                | isNothing varsExpr = Lit const
+                | const == 0 = fromJust varsExpr
+                | otherwise = Add (fromJust varsExpr) (Lit const)
+                where Lit const = Lit $ collectConst expr
+                      varsExpr = collectVars expr
+
+collectVars :: Expr -> Maybe Expr
+collectVars (Lit x)  =  Nothing
+collectVars (Var x)  =  Just (Var x)
+collectVars (Add (Lit x) expr) =  collectVars expr
+collectVars (Add expr (Lit x)) =  collectVars expr
+collectVars (Add expr1 expr2) =  Add <$> (collectVars expr1)<*>(collectVars expr2)
+
+collectConst :: Expr -> Int
+collectConst (Lit x) = x
+collectConst (Var name) = 0
+collectConst (Add op1 op2) = collectConst op1 + collectConst op2
