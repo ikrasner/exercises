@@ -27,6 +27,9 @@ module Lecture2
 
     , Knight (..)
     , dragonFight
+    , Chest (..)
+    , Dragon (..)
+    , DragonType (..)
 
       -- * Hard
     , isIncreasing
@@ -172,9 +175,49 @@ data Knight = Knight
     { knightHealth    :: Int
     , knightAttack    :: Int
     , knightEndurance :: Int
-    }
+    } deriving (Show)
 
-dragonFight = error "TODO"
+data Chest a = Chest {
+  gold :: Int,
+  treasure :: (Maybe a) 
+} deriving (Show)
+
+data DragonType = Red|Black|Green deriving (Show)
+data Dragon a = Dragon {
+    dragonHealth :: Int,
+    dragonAttack :: Int,  
+    dragonTreasure :: Chest a,
+    dragonColor:: DragonType
+} deriving (Show)
+
+type Reward a = (Int, Int, Maybe a)
+data FightResult a = Retreat|Death|Win (Reward a) deriving (Show)
+
+type FightState a = (Int, Knight, (Dragon a))
+
+
+dragonFight :: Knight -> Dragon a -> FightResult a
+dragonFight knight dragon = calculateFightResult $ calculateFinalState (1, knight, dragon)
+
+calculateFightResult :: FightState a -> FightResult a
+calculateFightResult (round, Knight kHealth _ kEndurance, dragon@(Dragon dHealth _ dTreasure dColor)) 
+  | kHealth <= 0 = Death
+  | kEndurance <= 0 = Retreat
+  | otherwise = Win $ dragonLoot dragon
+
+calculateFinalState:: FightState a -> FightState a
+calculateFinalState state@(round, knight@(Knight kHealth kAttack kEndurance), dragon@(Dragon dHealth dAttack _ _))
+  | kHealth <= 0 = state
+  | kEndurance <= 0 = state
+  | dHealth <=0 = state
+  | mod round 11 == 0 = calculateFinalState (round + 1, knight {knightHealth = kHealth - dAttack} , dragon)
+  | otherwise = calculateFinalState (round + 1, knight {knightEndurance = kEndurance - 1}, dragon {dragonHealth=dHealth-kAttack})
+
+
+dragonLoot :: Dragon a -> Reward a
+dragonLoot (Dragon _ _ (Chest gold treasure) Red) = (100, gold, treasure)
+dragonLoot (Dragon _ _ (Chest gold treasure) Black) = (150, gold, treasure)
+dragonLoot (Dragon _ _ (Chest gold _)  Green) = (200, gold, Nothing)
 
 ----------------------------------------------------------------------------
 -- Challenges
