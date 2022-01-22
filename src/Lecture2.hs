@@ -117,7 +117,7 @@ spaces.
 🕯 HINT: look into Data.Char and Prelude modules for functions you may use.
 -}
 dropSpaces :: String -> String
-dropSpaces = (takeWhile $ not.isSpace).(dropWhile isSpace)
+dropSpaces = takeWhile (not . isSpace) . dropWhile isSpace
 
 {- |
 
