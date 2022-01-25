@@ -220,10 +220,12 @@ dragonLoot (Dragon _ _ (Chest gold treasure) Black) = (150, gold, treasure)
 dragonLoot (Dragon _ _ (Chest gold _)  Green) = (200, gold, Nothing)
 
 ----------------------------------------------------------------------------
--- Challenges
+-- Extra Challenges
 ----------------------------------------------------------------------------
 
-{- The following exercises are considered more challenging. However,## 17.01.2021
+{- The following exercises are considered optional. Some of them might be more
+challenging. However, you still may find some of them easier than some of the
+previous ones. Difficulty is a relative concept.
 -}
 
 {- | Write a function that takes a list of numbers and returns 'True'
