@@ -27,6 +27,9 @@ module Lecture2
 
     , Knight (..)
     , dragonFight
+    , Chest (..)
+    , Dragon (..)
+    , DragonType (..)
 
       -- * Hard
     , isIncreasing
@@ -40,6 +43,10 @@ module Lecture2
     , constantFolding
     ) where
 
+import Data.Char (isSpace)
+import Data.List (partition)
+import Data.Maybe (fromJust, isNothing)
+
 {- | Implement a function that finds a product of all the numbers in
 the list. But implement a lazier version of this function: if you see
 zero, you can stop calculating product and return 0 immediately.
@@ -48,7 +55,9 @@ zero, you can stop calculating product and return 0 immediately.
 84
 -}
 lazyProduct :: [Int] -> Int
-lazyProduct = error "TODO"
+lazyProduct [] = 1
+lazyProduct (0:_) = 0
+lazyProduct (x:xs) = x * lazyProduct xs
 
 {- | Implement a function that duplicates every element in the list.
 
@@ -58,7 +67,8 @@ lazyProduct = error "TODO"
 "ccaabb"
 -}
 duplicate :: [a] -> [a]
-duplicate = error "TODO"
+duplicate [] = []
+duplicate (x:xs) = x : x : duplicate xs
 
 {- | Implement function that takes index and a list and removes the
 element at the given position. Additionally, this function should also
@@ -70,7 +80,15 @@ return the removed element.
 >>> removeAt 10 [1 .. 5]
 (Nothing,[1,2,3,4,5])
 -}
-removeAt = error "TODO"
+removeAt :: Int -> [a] -> (Maybe a, [a])
+removeAt 0 (x:xs) = (Just x, xs)
+removeAt _ [] = (Nothing, [])
+removeAt idx (x:xs)
+  | idx < 0 = (Nothing, x:xs)
+  | otherwise = makeList x (removeAt (idx - 1) xs)
+
+makeList:: a -> (Maybe a, [a]) -> (Maybe a, [a])
+makeList x (res, xs) = (res, x:xs)
 
 {- | Write a function that takes a list of lists and returns only
 lists of even lengths.
@@ -81,7 +99,8 @@ lists of even lengths.
 ♫ NOTE: Use eta-reduction and function composition (the dot (.) operator)
   in this function.
 -}
-evenLists = error "TODO"
+evenLists :: [[a]] -> [[a]]
+evenLists = filter $ even.length
 
 {- | The @dropSpaces@ function takes a string containing a single word
 or number surrounded by spaces and removes all leading and trailing
@@ -97,7 +116,8 @@ spaces.
 
 🕯 HINT: look into Data.Char and Prelude modules for functions you may use.
 -}
-dropSpaces = error "TODO"
+dropSpaces :: String -> String
+dropSpaces = takeWhile (not . isSpace) . dropWhile isSpace
 
 {- |
 
@@ -124,10 +144,7 @@ Below is the description of the fight and character specifications:
   * Stomachs of green dragons contain extreme acid and they melt any
     treasure except gold. So green dragons has only gold as reward.
     All other dragons always contain treasure in addition to gold.
-  * Knight tries to slay dragon with their sword. Each sword strike
-    decreases dragon health by the "sword attack" amount. When the
-    dragon health becomes zero or less, a dragon dies and the knight
-    takes the reward.
+  * Knight tries to slay dragoinsight
   * After each 10 sword strikes, dragon breathes fire and decreases
     knight health by the amount of "dragon fire power". If the
     knight's health becomes 0 or less, the knight dies.
@@ -158,17 +175,55 @@ data Knight = Knight
     { knightHealth    :: Int
     , knightAttack    :: Int
     , knightEndurance :: Int
-    }
+    } deriving (Show)
 
-dragonFight = error "TODO"
+data Chest a = Chest {
+  gold :: Int,
+  treasure :: (Maybe a) 
+} deriving (Show)
+
+data DragonType = Red|Black|Green deriving (Show)
+data Dragon a = Dragon {
+    dragonHealth :: Int,
+    dragonAttack :: Int,  
+    dragonTreasure :: Chest a,
+    dragonColor:: DragonType
+} deriving (Show)
+
+type Reward a = (Int, Int, Maybe a)
+data FightResult a = Retreat|Death|Win (Reward a) deriving (Show)
+
+type FightState a = (Int, Knight, (Dragon a))
+
+
+dragonFight :: Knight -> Dragon a -> FightResult a
+dragonFight knight dragon = calculateFightResult $ calculateFinalState (1, knight, dragon)
+
+calculateFightResult :: FightState a -> FightResult a
+calculateFightResult (round, Knight kHealth _ kEndurance, dragon@(Dragon dHealth _ dTreasure dColor)) 
+  | kHealth <= 0 = Death
+  | kEndurance <= 0 = Retreat
+  | otherwise = Win $ dragonLoot dragon
+
+calculateFinalState:: FightState a -> FightState a
+calculateFinalState state@(round, knight@(Knight kHealth kAttack kEndurance), dragon@(Dragon dHealth dAttack _ _))
+  | kHealth <= 0 = state
+  | kEndurance <= 0 = state
+  | dHealth <=0 = state
+  | mod round 11 == 0 = calculateFinalState (round + 1, knight {knightHealth = kHealth - dAttack} , dragon)
+  | otherwise = calculateFinalState (round + 1, knight {knightEndurance = kEndurance - 1}, dragon {dragonHealth=dHealth-kAttack})
+
+
+dragonLoot :: Dragon a -> Reward a
+dragonLoot (Dragon _ _ (Chest gold treasure) Red) = (100, gold, treasure)
+dragonLoot (Dragon _ _ (Chest gold treasure) Black) = (150, gold, treasure)
+dragonLoot (Dragon _ _ (Chest gold _)  Green) = (200, gold, Nothing)
 
 ----------------------------------------------------------------------------
 -- Challenges
 ----------------------------------------------------------------------------
 
-{- The following exercises are considered more challenging. However,
-you still may find some of them easier than some of the previous
-ones. Difficulty is a relative concept.
+{- The following exercises are considered more challenging. However,## 17.01.2021
 -}
 
 {- | Write a function that takes a list of numbers and returns 'True'
@@ -181,7 +236,9 @@ False
 True
 -}
 isIncreasing :: [Int] -> Bool
-isIncreasing = error "TODO"
+isIncreasing [] = True
+isIncreasing [x] = True
+isIncreasing (x1:x2:xs) = x1<x2 && isIncreasing (x2:xs)
 
 {- | Implement a function that takes two lists, sorted in the
 increasing order, and merges them into new list, also sorted in the
@@ -194,7 +251,11 @@ verify that.
 [1,2,3,4,7]
 -}
 merge :: [Int] -> [Int] -> [Int]
-merge = error "TODO"
+merge xs [] = xs 
+merge [] ys = ys 
+merge (x:xs) (y:ys) 
+  | x > y = y : merge (x:xs) ys 
+  | otherwise = x : merge xs (y:ys)
 
 {- | Implement the "Merge Sort" algorithm in Haskell. The @mergeSort@
 function takes a list of numbers and returns a new list containing the
@@ -211,7 +272,11 @@ The algorithm of merge sort is the following:
 [1,2,3]
 -}
 mergeSort :: [Int] -> [Int]
-mergeSort = error "TODO"
+mergeSort [] = []
+mergeSort [x] = [x]
+mergeSort (x:xs)= mergeSort left ++ [x] ++ mergeSort right
+                where (left, right) = partition (<x) xs
+
 
 
 {- | Haskell is famous for being a superb language for implementing
@@ -250,7 +315,7 @@ type Variables = [(String, Int)]
 
 {- | Unfortunately, it's not guaranteed that variables in our @Expr@
 data type are present in the given list. So we're going to introduce a
-separate data for possible evaluation errors.
+separate data for possible evaluation errors.error "TODO"
 
 Normally, this would be a sum type with several constructors
 describing all possible errors. But we have only one error in our
@@ -264,8 +329,16 @@ data EvalError
 It returns either a successful evaluation result or an error.
 -}
 eval :: Variables -> Expr -> Either EvalError Int
-eval = error "TODO"
+eval _ (Lit x) = Right x
+eval vars (Var name) = variableValue vars name
+eval vars (Add op1 op2) = (+) <$> eval vars op1 <*> eval vars op2
 
+
+variableValue :: Variables -> String -> Either EvalError Int
+variableValue [] name = Left $ VariableNotFound name
+variableValue ((varName,varValue):vars) name 
+                                | name == varName = Right varValue
+                                | otherwise = variableValue vars name
 {- | Compilers also perform optimizations! One of the most common
 optimizations is "Constant Folding". It performs arithmetic operations
 on all constants known during compile time. This way you can write
@@ -279,13 +352,29 @@ x + 10 + y + 15 + 20
 The result of constant folding can be:
 
 x + y + 45
-
-It also can be:
-
+([], Nothing)
 x + 45 + y
 
 Write a function that takes and expression and performs "Constant
 Folding" optimization on the given expression.
 -}
 constantFolding :: Expr -> Expr
-constantFolding = error "TODO"
+constantFolding (Lit lit) = Lit lit
+constantFolding expr 
+                | isNothing varsExpr = Lit const
+                | const == 0 = fromJust varsExpr
+                | otherwise = Add (fromJust varsExpr) (Lit const)
+                where Lit const = Lit $ collectConst expr
+                      varsExpr = collectVars expr
+
+collectVars :: Expr -> Maybe Expr
+collectVars (Lit x)  =  Nothing
+collectVars (Var x)  =  Just (Var x)
+collectVars (Add (Lit x) expr) =  collectVars expr
+collectVars (Add expr (Lit x)) =  collectVars expr
+collectVars (Add expr1 expr2) =  Add <$> (collectVars expr1)<*>(collectVars expr2)
+
+collectConst :: Expr -> Int
+collectConst (Lit x) = x
+collectConst (Var name) = 0
+collectConst (Add op1 op2) = collectConst op1 + collectConst op2
