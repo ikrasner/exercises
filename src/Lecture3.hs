@@ -283,4 +283,4 @@ Just [8,9,10]
 
 -}
 apply :: (Functor f) => a -> f (a->b) -> f b
-apply value functor = fmap (\x->x value) functor
+apply value = fmap (\x->x value)
