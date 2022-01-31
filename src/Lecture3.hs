@@ -133,7 +133,7 @@ instance Semigroup Reward where
   (<>) (Reward g1 prize1) (Reward g2 prize2) = Reward (g1 <> g2) (prize1 || prize2)
 
 instance Monoid Reward where
-  mempty = Reward (Gold 0) False
+  mempty = Reward mempty False
 
 {- | 'List1' is a list that contains at least one element.
 -}
