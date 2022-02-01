@@ -85,10 +85,6 @@ return the removed element.
 (Nothing,[1,2,3,4,5])
 -}
 removeAt :: Int -> [a] -> (Maybe a, [a])
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Assignment 2
 removeAt 0 (x:xs) = (Just x, xs)
 removeAt _ [] = (Nothing, [])
 removeAt idx (x:xs)
@@ -97,15 +93,6 @@ removeAt idx (x:xs)
 
 makeList:: a -> (Maybe a, [a]) -> (Maybe a, [a])
 makeList x (res, xs) = (res, x:xs)
-<<<<<<< HEAD
-=======
-removeAt = error "TODO"
--- removeAt 0 (_:xs) = xs
--- removeAt _ [] = 
--- removeAt idx (x:xs) = x: removeAt (idx - 1) xs
->>>>>>> Lecture 2 assignments
-=======
->>>>>>> Assignment 2
 
 {- | Write a function that takes a list of lists and returns only
 lists of even lengths.
