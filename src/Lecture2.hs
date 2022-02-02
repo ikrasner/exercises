@@ -282,19 +282,8 @@ The algorithm of merge sort is the following:
 mergeSort :: [Int] -> [Int]
 mergeSort [] = []
 mergeSort [x] = [x]
-<<<<<<< HEAD
-<<<<<<< HEAD
 mergeSort (x:xs)= mergeSort left ++ [x] ++ mergeSort right
                 where (left, right) = partition (<x) xs
-=======
-mergeSort xss@(x:xs)= mergeSort left ++ mergeSort right
-                where (left, right) = break (>x) xss
->>>>>>> Lecture 2 assignments
-=======
-mergeSort (x:xs)= mergeSort left ++ [x] ++ mergeSort right
-                where (left, right) = partition (<x) xs
->>>>>>> Assignment 2
-
 
 
 {- | Haskell is famous for being a superb language for implementing
