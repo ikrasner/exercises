@@ -227,13 +227,11 @@ dragonLoot (Dragon _ _ (Chest gold _)  Green) = (200, gold, Nothing)
 -- Extra Challenges
 ----------------------------------------------------------------------------
 
-<<<<<<< HEAD
-{- The following exercises are considered optional. Some of them might be more
+{-
+  - The following exercises are considered optional. Some of them might be more
 challenging. However, you still may find some of them easier than some of the
 previous ones. Difficulty is a relative concept.
-=======
-{- The following exercises are considered more challenging. However,## 17.01.2021
->>>>>>> Lecture 2 assignments
+
 -}
 
 {- | Write a function that takes a list of numbers and returns 'True'
