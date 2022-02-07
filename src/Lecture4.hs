@@ -101,10 +101,10 @@ module Lecture4
     ) where
 
 import Data.List.NonEmpty (NonEmpty (..), fromList)
-import Data.Semigroup (Max (..), Min (..), Semigroup (..), Sum (..))
+import Data.Semigroup (Max (..), Min (..), Sum (..))
 import Text.Read (readMaybe)
 import Data.Char (isSpace)
-import Data.Maybe (isNothing, fromJust, mapMaybe)
+import Data.Maybe (mapMaybe)
 import System.Environment (getArgs)
 
 {- In this exercise, instead of writing the entire program from
@@ -155,9 +155,9 @@ parseCost stringCost = case parsedValue of
   where parsedValue = readMaybe stringCost
 
 parseRow :: String -> Maybe Row
-parseRow str
-  | length clearedData == 3 = let (pName:pType:pCost:_) = clearedData in Row pName <$> readMaybe pType <*> parseCost pCost
-  | otherwise = Nothing
+parseRow str = case clearedData of 
+    [pName, pType, pCost] -> Row pName <$> readMaybe pType <*> parseCost pCost
+    _ -> Nothing
   where clearedData = splitOn ',' str
 
 
@@ -272,7 +272,7 @@ strictSconcat:: (Semigroup a) => NonEmpty a -> a
 strictSconcat = foldr1 (\x !acc -> x <> acc)
 
 combineRows :: NonEmpty Row -> Stats
-combineRows rows = strictSconcat $ fmap rowToStats rows
+combineRows = strictSconcat . fmap rowToStats
 
 {-
 After we've calculated stats for all rows, we can then pretty-print

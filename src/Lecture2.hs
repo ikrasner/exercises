@@ -183,13 +183,13 @@ data Knight = Knight
 
 data Chest a = Chest {
   gold :: Int,
-  treasure :: (Maybe a) 
+  treasure :: Maybe a
 } deriving (Show)
 
 data DragonType = Red|Black|Green deriving (Show)
 data Dragon a = Dragon {
     dragonHealth :: Int,
-    dragonAttack :: Int,  
+    dragonAttack :: Int,
     dragonTreasure :: Chest a,
     dragonColor:: DragonType
 } deriving (Show)
@@ -197,25 +197,25 @@ data Dragon a = Dragon {
 type Reward a = (Int, Int, Maybe a)
 data FightResult a = Retreat|Death|Win (Reward a) deriving (Show)
 
-type FightState a = (Int, Knight, (Dragon a))
+type FightState a = (Int, Knight, Dragon a)
 
 
 dragonFight :: Knight -> Dragon a -> FightResult a
 dragonFight knight dragon = calculateFightResult $ calculateFinalState (1, knight, dragon)
 
 calculateFightResult :: FightState a -> FightResult a
-calculateFightResult (round, Knight kHealth _ kEndurance, dragon@(Dragon dHealth _ dTreasure dColor)) 
+calculateFightResult (_, Knight kHealth _ kEndurance, dragon@Dragon {})
   | kHealth <= 0 = Death
   | kEndurance <= 0 = Retreat
   | otherwise = Win $ dragonLoot dragon
 
 calculateFinalState:: FightState a -> FightState a
-calculateFinalState state@(round, knight@(Knight kHealth kAttack kEndurance), dragon@(Dragon dHealth dAttack _ _))
+calculateFinalState state@(fightRound, knight@(Knight kHealth kAttack kEndurance), dragon@(Dragon dHealth dAttack _ _))
   | kHealth <= 0 = state
   | kEndurance <= 0 = state
   | dHealth <=0 = state
-  | mod round 11 == 0 = calculateFinalState (round + 1, knight {knightHealth = kHealth - dAttack} , dragon)
-  | otherwise = calculateFinalState (round + 1, knight {knightEndurance = kEndurance - 1}, dragon {dragonHealth=dHealth-kAttack})
+  | mod fightRound 11 == 0 = calculateFinalState (fightRound + 1, knight {knightHealth = kHealth - dAttack} , dragon)
+  | otherwise = calculateFinalState (fightRound + 1, knight {knightEndurance = kEndurance - 1}, dragon {dragonHealth=dHealth-kAttack})
 
 
 dragonLoot :: Dragon a -> Reward a
@@ -245,7 +245,7 @@ True
 -}
 isIncreasing :: [Int] -> Bool
 isIncreasing [] = True
-isIncreasing [x] = True
+isIncreasing [_] = True
 isIncreasing (x1:x2:xs) = x1<x2 && isIncreasing (x2:xs)
 
 {- | Implement a function that takes two lists, sorted in the
@@ -259,10 +259,10 @@ verify that.
 [1,2,3,4,7]
 -}
 merge :: [Int] -> [Int] -> [Int]
-merge xs [] = xs 
-merge [] ys = ys 
-merge (x:xs) (y:ys) 
-  | x > y = y : merge (x:xs) ys 
+merge xs [] = xs
+merge [] ys = ys
+merge (x:xs) (y:ys)
+  | x > y = y : merge (x:xs) ys
   | otherwise = x : merge xs (y:ys)
 
 {- | Implement the "Merge Sort" algorithm in Haskell. The @mergeSort@
@@ -328,9 +328,7 @@ Normally, this would be a sum type with several constructors
 describing all possible errors. But we have only one error in our
 evaluation process.
 -}
-data EvalError
-    = VariableNotFound String
-    deriving (Show, Eq)
+newtype EvalError = VariableNotFound String deriving (Show, Eq)
 
 {- | Having all this set up, we can finally implement an evaluation function.
 It returns either a successful evaluation result or an error.
@@ -343,7 +341,7 @@ eval vars (Add op1 op2) = (+) <$> eval vars op1 <*> eval vars op2
 
 variableValue :: Variables -> String -> Either EvalError Int
 variableValue [] name = Left $ VariableNotFound name
-variableValue ((varName,varValue):vars) name 
+variableValue ((varName,varValue):vars) name
                                 | name == varName = Right varValue
                                 | otherwise = variableValue vars name
 {- | Compilers also perform optimizations! One of the most common
@@ -367,21 +365,21 @@ Folding" optimization on the given expression.
 -}
 constantFolding :: Expr -> Expr
 constantFolding (Lit lit) = Lit lit
-constantFolding expr 
-                | isNothing varsExpr = Lit const
-                | const == 0 = fromJust varsExpr
-                | otherwise = Add (fromJust varsExpr) (Lit const)
-                where Lit const = Lit $ collectConst expr
+constantFolding expr
+                | isNothing varsExpr = Lit someConst
+                | someConst == 0 = fromJust varsExpr
+                | otherwise = Add (fromJust varsExpr) (Lit someConst)
+                where Lit someConst = Lit $ collectConst expr
                       varsExpr = collectVars expr
 
 collectVars :: Expr -> Maybe Expr
-collectVars (Lit x)  =  Nothing
+collectVars (Lit _)  =  Nothing
 collectVars (Var x)  =  Just (Var x)
-collectVars (Add (Lit x) expr) =  collectVars expr
-collectVars (Add expr (Lit x)) =  collectVars expr
-collectVars (Add expr1 expr2) =  Add <$> (collectVars expr1)<*>(collectVars expr2)
+collectVars (Add (Lit _) expr) =  collectVars expr
+collectVars (Add expr (Lit _)) =  collectVars expr
+collectVars (Add expr1 expr2) =  Add <$> collectVars expr1 <*> collectVars expr2
 
 collectConst :: Expr -> Int
 collectConst (Lit x) = x
-collectConst (Var name) = 0
+collectConst (Var _) = 0
 collectConst (Add op1 op2) = collectConst op1 + collectConst op2

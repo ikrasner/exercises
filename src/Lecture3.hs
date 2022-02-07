@@ -230,20 +230,20 @@ types that can have such an instance.
 
 instance Foldable List1 where  
   foldMap :: (Monoid m) => (a -> m) -> List1 a -> m
-  foldMap step (List1 x xs) = (step x) <> foldMap step xs
+  foldMap step (List1 x xs) = step x <> foldMap step xs
 
   foldr :: (a -> b -> b) -> b -> List1 a -> b
-  foldr step init (List1 x xs) = step x folded
-                                where folded = foldr step init xs
+  foldr step initStep (List1 x xs) = step x folded
+                                where folded = foldr step initStep xs
 
 instance Foldable Treasure where
   foldMap :: (Monoid m) => (a -> m) -> Treasure a -> m
-  foldMap step NoTreasure = mempty
+  foldMap _ NoTreasure = mempty
   foldMap step (SomeTreasure a) = step a
 
   foldr :: (a -> b -> b) -> b -> Treasure a -> b
-  foldr step init NoTreasure = init
-  foldr step init (SomeTreasure x) = step x init
+  foldr _ initStep NoTreasure = initStep
+  foldr step initStep (SomeTreasure x) = step x initStep
 
 {-
 
@@ -262,7 +262,7 @@ instance Functor List1 where
 
 instance Functor Treasure where
   fmap :: (a -> b) -> Treasure a -> Treasure b
-  fmap func NoTreasure = NoTreasure
+  fmap _ NoTreasure = NoTreasure
   fmap func (SomeTreasure x) = SomeTreasure (func x)
 
 {- | Functions are first-class values in Haskell. This means that they
