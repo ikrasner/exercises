@@ -291,7 +291,7 @@ showMaybeMin (Just (Min x))= show x
 
 displayStats :: Stats -> String
 displayStats (Stats sTotalPos sTotalSum sAbsMax sAbsMin sSellMax sSellMin sBuyMax sBuyMin sLong) = "\
-\Total positions:       : "++ (show . getSum $ sTotalPos) ++"\n\
+\Total positions:       : "++ show (getSum sTotalPos) ++"\n\
 \Total final balance    : "++ (show . getSum $ sTotalSum) ++ "\n\
 \Biggest absolute cost  : "++ (show . getMax $ sAbsMax) ++ "\n\
 \Smallest absolute cost : "++ (show . getMin $ sAbsMin) ++ "\n\
