@@ -149,10 +149,9 @@ splitOn sym str@(x:xs)
         clearedPart = trimSpaces part
 
 parseCost :: String -> Maybe Int
-parseCost stringCost
-  | isNothing parsedValue = parsedValue
-  | fromJust parsedValue >= 0 = parsedValue
-  | otherwise = Nothing
+parseCost stringCost = case parsedValue of
+    Nothing -> Nothing
+    Just x  -> if x >= 0 then Just x else Nothing
   where parsedValue = readMaybe stringCost
 
 parseRow :: String -> Maybe Row
