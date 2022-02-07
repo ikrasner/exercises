@@ -210,10 +210,9 @@ instance for the 'Stats' type itself.
 -}
 
 strictMayBeAppend :: (Semigroup a) =>  Maybe a -> Maybe a -> Maybe a
-strictMayBeAppend (Just !x) (Just !y) = Just $ x<>y
-strictMayBeAppend (Just !x) Nothing  = Just x
-strictMayBeAppend Nothing (Just !y)  = Just y
-strictMayBeAppend Nothing Nothing  = Nothing 
+strictMayBeAppend a b = case a <> b of
+    Nothing -> Nothing
+    Just !x -> Just x
 
 instance Semigroup Stats where
   (<>) s1 s2 = Stats
